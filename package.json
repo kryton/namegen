@@ -7,8 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Ian Hoslman <kryton.lists@gmail.com>",
+  "license": "ASL",
   "dependencies": {
     "line-reader": "^0.4.0"
   }
