@@ -1,26 +1,26 @@
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// name_generator.js
-// written and released to the public domain by drow <drow@bin.sh>
+/*
+ Markov.js
+
+// based on code written and released to the public domain by drow <drow@bin.sh>
 // http://creativecommons.org/publicdomain/zero/1.0/
+*/
 class Markov {
-    constructor() {
+    constructor(token_length=2) {
         this.initial={}
         this.initial_total=0
         this.rest={}
         this.tally={}
         this.scaled_init={}
         this.scaled_rest={}
+        this.token_length = token_length
     }
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// construct markov chain from list of names
-
-    incr_chain(name, token_length=2) {
-        if (name.length< token_length) {
+    incr_chain(name) {
+        if (name.length< this.token_length) {
             return
         }
-        let remainder = name + "__";
-        let initial_token = name.substr(0, token_length);
+        let remainder = name + "_".repeat(this.token_length);
+        let initial_token = name.substr(0, this.token_length);
         if (this.initial[initial_token]) {
             this.initial[initial_token] += 1;
         } else {
@@ -28,10 +28,10 @@ class Markov {
         }
         this.initial_total += 1;
         let last_token = initial_token
-        while ( remainder.length > token_length) {
+        while ( remainder.length > this.token_length) {
 
             remainder = remainder.substr(1);
-            let to_parse = remainder.substr(0, token_length);
+            let to_parse = remainder.substr(0, this.token_length);
             if (this.tally[last_token]) {
                 this.tally[last_token] += 1;
 
@@ -45,12 +45,7 @@ class Markov {
                 this.rest[last_token]={};
                 this.rest[last_token][to_parse] = 1;
             }
-            /*
-            if (last_token == "dh") {
-                console.log(last_token +"-"+ to_parse +" -" + weight +" " + this.rest[last_token][to_parse])
-            }
 
-             */
             last_token = to_parse;
         }
 
@@ -76,16 +71,12 @@ class Markov {
 
             this.scaled_rest[token] = this.scale_part(this.rest[token], this.tally[token])
         }
+        this.initial={}
+        this.initial_total={}
+        this.tally={}
     }
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// construct name from markov chain
-
-
     markov_name(minimum_len= 4, name_len =12) {
-
-       // const name_len =  12//this.select_link(chain, 'name_len');
-
         let c = this.select_link(this.scaled_init);
         let name = c[0];
 
@@ -105,20 +96,16 @@ class Markov {
 
     }
 
-
     select_link(chain) {
         const idx = Math.random();
-        let last_token = "_";
-
         for (let token in chain) {
             if (chain[token] >= idx) {
                 return token
             }
         }
         console.log("Error. select_chain should have chosen something")
-        return last_token;
+        return "_".repeat(this.token_length);
     }
 }
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 module.exports.Markov = Markov
